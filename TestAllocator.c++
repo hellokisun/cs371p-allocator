@@ -171,6 +171,8 @@ struct TestAllocator2 : CppUnit::TestFixture {
 	void test_valid_14 () {
 		Allocator<int, 1000> x;
     }
+	
+	
    
     // -----
     // suite
@@ -178,8 +180,8 @@ struct TestAllocator2 : CppUnit::TestFixture {
 
     CPPUNIT_TEST_SUITE(TestAllocator2);
     CPPUNIT_TEST(test_valid_1);
-    CPPUNIT_TEST(test_valid_2);
-    CPPUNIT_TEST(test_valid_3);
+//    CPPUNIT_TEST(test_valid_2);
+//    CPPUNIT_TEST(test_valid_3);
     CPPUNIT_TEST(test_valid_4);
     CPPUNIT_TEST(test_valid_5);
     CPPUNIT_TEST(test_valid_6);

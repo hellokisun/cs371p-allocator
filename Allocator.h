@@ -78,23 +78,23 @@ class Allocator {
             int left, right;
             int i = 0;
 			
-            while(i < N-4) {
+            while(i < N-(int)sizeof(int)) {
                 left = (int)*reinterpret_cast<int*>(p); //get the sentinel value
 //                std::cout << "left: " << left << std::endl;
 //                std::cout << "i: " << i+left << std::endl;
                 if(left < 0)	//if the block is busy
-                    right = (int)*reinterpret_cast<int*>(p + (-1*left) + 4);
+                    right = (int)*reinterpret_cast<int*>(p + (-1*left) + sizeof(int));
                 else			//if the block is free
-                    right = (int)*reinterpret_cast<int*>(p + left + 4);
+                    right = (int)*reinterpret_cast<int*>(p + left + sizeof(int));
 //                std::cout << "right: " << right << std::endl;
 
                 if(left != right)
                     return false;
                 
-                i += left + 4;
+                i += left + sizeof(int);
 //                std::cout << "i at the end of while: " << i << std::endl;
             }
-            if(i != N-4) {
+            if(i != N-sizeof(int)) {
                 std::cout << "i: " << i << "; N: " << N << std::endl;
                 return false;
             }
@@ -108,7 +108,11 @@ class Allocator {
         /**
          * O(1) in space
          * O(1) in time
-         * <your documentation>
+         * Initializes the "heap" array with sentinels on both ends of the array.
+		 * The sentinel values (int) indicate the number of blocks that are in between the two sentinels. 
+		 * The sign of these sentinel values dictate the status of these blocks:
+		 * 		positive value indicates the block is free to be given out,
+		 * 		negative value indicates the block is has been given out to some other requestor.
          */
          
         Allocator () {
@@ -116,10 +120,10 @@ class Allocator {
 				throw std::bad_alloc();
 			}
             int* p1 = reinterpret_cast<int*>(&a[0]);
-            *p1 = (N-8);
+            *p1 = (N-2*(sizeof(int)));
 //			std::cout << "p1: " << *p1 << std::endl;
-            int* p2 = reinterpret_cast<int*>(&a[N-4]);
-            *p2 = (N-8);
+            int* p2 = reinterpret_cast<int*>(&a[N-sizeof(int)]);
+            *p2 = (N-2*(sizeof(int)));
 //			std::cout << "p2: " << *p2 << std::endl;
             assert(valid());}
 
