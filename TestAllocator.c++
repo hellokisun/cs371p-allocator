@@ -115,7 +115,7 @@ struct TestAllocator2 : CppUnit::TestFixture {
 	void test_valid_2 () {
 		try {
 			Allocator<int, 4> x;} 
-		catch(std::bad_alloc e){
+		catch(std::bad_alloc& e){
 //			std::cout << "bad_alloc" << std::endl;
 		}
     }    
@@ -123,10 +123,10 @@ struct TestAllocator2 : CppUnit::TestFixture {
 	void test_valid_3 () {
 		try {
 			Allocator<int, 0> x;} 
-		catch(std::bad_alloc e){
+		catch(std::bad_alloc& e){
 //			std::cout << "bad_alloc" << std::endl;
 		}
-    }    
+    }
 	
 	void test_valid_4 () {
 		Allocator<bool, 8> x;
@@ -172,8 +172,35 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		Allocator<int, 1000> x;
     }
 	
+	// -------------
+	// test_allocate
+    // -------------
 	
-   
+	void test_allocate_1 () {
+		Allocator<int, 100> x;
+		pointer p = x.allocate(20);
+		try {
+			x.allocate(2);
+		} catch (std::bad_alloc e) {}
+		x.destroy(p);
+		std::cout << "test_allocate_1 done." << std::endl;
+	}
+	
+	void test_allocate_2 () {
+		Allocator<int, 100> x;
+		x.allocate(20);
+		std::cout << "test_allocate_2: x.allocate(20) done." << std::endl;
+		x.allocate(1);
+		std::cout << "test_allocate_2: x.allocate(1) done." << std::endl;
+		std::cout << "test_allocate_2 done." << std::endl;
+	}
+	
+	// ---------------
+	// test_deallocate
+	// ---------------
+	
+	
+	
     // -----
     // suite
     // -----
@@ -193,6 +220,8 @@ struct TestAllocator2 : CppUnit::TestFixture {
     CPPUNIT_TEST(test_valid_12);
     CPPUNIT_TEST(test_valid_13);
     CPPUNIT_TEST(test_valid_14);
+    CPPUNIT_TEST(test_allocate_1);
+    CPPUNIT_TEST(test_allocate_2);
     CPPUNIT_TEST_SUITE_END();};
 
     
