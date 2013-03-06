@@ -177,29 +177,75 @@ struct TestAllocator2 : CppUnit::TestFixture {
     // -------------
 	
 	void test_allocate_1 () {
-		Allocator<int, 100> x;
-		pointer p = x.allocate(20);
+		B x;
+		x.allocate(20);
 		try {
 			x.allocate(2);
 		} catch (std::bad_alloc e) {}
-		x.destroy(p);
-		std::cout << "test_allocate_1 done." << std::endl;
+		//std::cout << "finished test_allocate_1" << std::endl;
 	}
 	
 	void test_allocate_2 () {
-		Allocator<int, 100> x;
+		B x;
 		x.allocate(20);
-		std::cout << "test_allocate_2: x.allocate(20) done." << std::endl;
 		x.allocate(1);
-		std::cout << "test_allocate_2: x.allocate(1) done." << std::endl;
-		std::cout << "test_allocate_2 done." << std::endl;
+		//std::cout << "finished test_allocate_2" << std::endl;
+	}
+	
+	void test_allocate_3 () {
+		B x;
+		x.allocate(10);
+		try {
+			x.allocate(5);
+		} catch (std::bad_alloc e) {}
+		//std::cout << "finished test_allocate_3" << std::endl;
 	}
 	
 	// ---------------
 	// test_deallocate
 	// ---------------
 	
+	void test_deallocate_1 () {
+		std::cout << "in test_deallocate_1" << std::endl;
+		B x;
+		pointer p = x.allocate(20);
+		x.deallocate(p);
+		//std::cout << "finished test_deallocate_1" << std::endl;
+	}	
 	
+	void test_deallocate_2 () {
+		std::cout << "in test_deallocate_2" << std::endl;
+		B x;
+		pointer p1 = x.allocate(3);
+		//std::cout << "allocated p1 (3)" << std::endl;
+		pointer p2 = x.allocate(3);
+		//std::cout << "allocated p2 (3)" << std::endl;
+		x.deallocate(p1);
+		std::cout << "deallocated p1" << std::endl;
+		x.deallocate(p2);
+		std::cout << "deallocated p2" << std::endl;
+		//std::cout << "finished test_deallocate_2" << std::endl;
+	}	
+	
+	void test_deallocate_3 () {
+		std::cout << "in test_deallocate_3-------------------------------------------------------" << std::endl;
+		B x;
+		pointer p1 = x.allocate(10);
+		x.deallocate(p1);
+		p1 = x.allocate(5);
+		pointer p2 = x.allocate(3);
+		pointer p3 = x.allocate(2);
+		x.deallocate(p2);
+		p2 = x.allocate(5);
+		x.deallocate(p1);
+		p1 = x.allocate(1);
+		x.deallocate(p3);
+		p3 = x.allocate(2);
+		x.deallocate(p1);
+		x.deallocate(p2);
+		x.deallocate(p3);
+		//std::cout << "finished test_deallocate_1" << std::endl;
+	}	
 	
     // -----
     // suite
@@ -222,6 +268,10 @@ struct TestAllocator2 : CppUnit::TestFixture {
     CPPUNIT_TEST(test_valid_14);
     CPPUNIT_TEST(test_allocate_1);
     CPPUNIT_TEST(test_allocate_2);
+    CPPUNIT_TEST(test_allocate_3);
+    CPPUNIT_TEST(test_deallocate_1);
+    CPPUNIT_TEST(test_deallocate_2);
+    CPPUNIT_TEST(test_deallocate_3);
     CPPUNIT_TEST_SUITE_END();};
 
     
