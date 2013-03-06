@@ -84,7 +84,7 @@ struct TestAllocator : CppUnit::TestFixture {
             --e;
             x.destroy(e);}
         x.deallocate(b, s);}
-
+   
     // -----
     // suite
     // -----
@@ -94,6 +94,106 @@ struct TestAllocator : CppUnit::TestFixture {
     CPPUNIT_TEST(test_ten);
     CPPUNIT_TEST_SUITE_END();};
 
+template <typename B>
+struct TestAllocator2 : CppUnit::TestFixture {
+    // --------
+    // typedefs
+    // --------
+
+    typedef typename B::value_type      value_type;
+    typedef typename B::difference_type difference_type;
+    typedef typename B::pointer         pointer;
+
+	// ----------
+    // test_valid
+    // ----------
+    
+    void test_valid_1 () {
+		Allocator<int, 8> x;
+    }    
+	
+	void test_valid_2 () {
+		try {
+			Allocator<int, 4> x;} 
+		catch(std::bad_alloc e){
+//			std::cout << "bad_alloc" << std::endl;
+		}
+    }    
+	
+	void test_valid_3 () {
+		try {
+			Allocator<int, 0> x;} 
+		catch(std::bad_alloc e){
+//			std::cout << "bad_alloc" << std::endl;
+		}
+    }    
+	
+	void test_valid_4 () {
+		Allocator<bool, 8> x;
+    }   
+	
+	void test_valid_5 () {
+		Allocator<char, 8> x;
+    }  
+	
+	void test_valid_6 () {
+		Allocator<double, 8> x;
+    }  
+	
+	void test_valid_7 () {
+		Allocator<int, 8> x;
+    }  
+	
+	void test_valid_8 () {
+		Allocator<bool, 100> x;
+    }
+	
+	void test_valid_9 () {
+		Allocator<char, 100> x;
+    }
+	
+	void test_valid_10 () {
+		Allocator<double, 100> x;
+    }
+	
+	void test_valid_11 () {
+		Allocator<int, 100> x;
+    }
+	
+	void test_valid_12 () {
+		Allocator<int, 321> x;
+    }
+	
+	void test_valid_13 () {
+		Allocator<int, 500> x;
+    }
+	
+	void test_valid_14 () {
+		Allocator<int, 1000> x;
+    }
+   
+    // -----
+    // suite
+    // -----
+
+    CPPUNIT_TEST_SUITE(TestAllocator2);
+    CPPUNIT_TEST(test_valid_1);
+    CPPUNIT_TEST(test_valid_2);
+    CPPUNIT_TEST(test_valid_3);
+    CPPUNIT_TEST(test_valid_4);
+    CPPUNIT_TEST(test_valid_5);
+    CPPUNIT_TEST(test_valid_6);
+    CPPUNIT_TEST(test_valid_7);
+    CPPUNIT_TEST(test_valid_8);
+    CPPUNIT_TEST(test_valid_9);
+    CPPUNIT_TEST(test_valid_10);
+    CPPUNIT_TEST(test_valid_11);
+    CPPUNIT_TEST(test_valid_12);
+    CPPUNIT_TEST(test_valid_13);
+    CPPUNIT_TEST(test_valid_14);
+    CPPUNIT_TEST_SUITE_END();};
+
+    
 // ----
 // main
 // ----
@@ -105,12 +205,14 @@ int main () {
 
     CppUnit::TextTestRunner tr;
 
-    tr.addTest(TestAllocator< std::allocator<int> >::suite());
-//  tr.addTest(TestAllocator< Allocator<int, 100> >::suite()); // uncomment!
+//    tr.addTest(TestAllocator< std::allocator<int> >::suite());
+//    tr.addTest(TestAllocator< Allocator<int, 100> >::suite()); // uncomment!
+    
+//    tr.addTest(TestAllocator< std::allocator<double> >::suite());
+//    tr.addTest(TestAllocator< Allocator<double, 100> >::suite()); // uncomment!
 
-    tr.addTest(TestAllocator< std::allocator<double> >::suite());
-//  tr.addTest(TestAllocator< Allocator<double, 100> >::suite()); // uncomment!
-
+	tr.addTest(TestAllocator2<Allocator<int, 100>>::suite());
+	
     tr.run();
 
     cout << "Done." << endl;

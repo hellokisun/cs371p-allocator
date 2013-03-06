@@ -69,7 +69,35 @@ class Allocator {
          * <your documentation>
          */
         bool valid () const {
-            // <your code>
+//            std::cout << std::endl << "starting..." << std::endl;
+//            std::cout << "N = " << N << std::endl;
+//            std::cout << "a[0] = " << (int)a[0] << std::endl;
+//            std::cout << "a[96] = " << (int)a[96] << std::endl; 
+
+            char *p = const_cast<char*>(reinterpret_cast<const char*>(&a));
+            int left, right;
+            int i = 0;
+			
+            while(i < N-4) {
+                left = (int)*reinterpret_cast<int*>(p); //get the sentinel value
+//                std::cout << "left: " << left << std::endl;
+//                std::cout << "i: " << i+left << std::endl;
+                if(left < 0)	//if the block is busy
+                    right = (int)*reinterpret_cast<int*>(p + (-1*left) + 4);
+                else			//if the block is free
+                    right = (int)*reinterpret_cast<int*>(p + left + 4);
+//                std::cout << "right: " << right << std::endl;
+
+                if(left != right)
+                    return false;
+                
+                i += left + 4;
+//                std::cout << "i at the end of while: " << i << std::endl;
+            }
+            if(i != N-4) {
+                std::cout << "i: " << i << "; N: " << N << std::endl;
+                return false;
+            }
             return true;}
 
     public:
@@ -82,8 +110,17 @@ class Allocator {
          * O(1) in time
          * <your documentation>
          */
+         
         Allocator () {
-            // <your code>
+			if(N < 2*sizeof(int)) {
+				throw std::bad_alloc();
+			}
+            int* p1 = reinterpret_cast<int*>(&a[0]);
+            *p1 = (N-8);
+//			std::cout << "p1: " << *p1 << std::endl;
+            int* p2 = reinterpret_cast<int*>(&a[N-4]);
+            *p2 = (N-8);
+//			std::cout << "p2: " << *p2 << std::endl;
             assert(valid());}
 
         // Default copy, destructor, and copy assignment
@@ -103,6 +140,7 @@ class Allocator {
          * the smallest allowable block is sizeof(T) + (2 * sizeof(int))
          * choose the first block that fits
          */
+		 
         pointer allocate (size_type n) {
             // <your code>
             assert(valid());
@@ -118,7 +156,7 @@ class Allocator {
          * <your documentation>
          */
         void construct (pointer p, const_reference v) {
-            // new (p) T(v);                            // uncomment!
+            new (p) T(v);                            // uncomment!
             assert(valid());}
 
         // ----------
@@ -146,6 +184,9 @@ class Allocator {
          */
         void destroy (pointer p) {
             // p->~T();            // uncomment!
-            assert(valid());}};
+            assert(valid());}
+			
+		bool isValid() { return valid(); }
+		};
 
 #endif // Allocator_h
