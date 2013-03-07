@@ -7,6 +7,16 @@
 #ifndef Allocator_h
 #define Allocator_h
 
+
+//uncomment to see debug messages
+//#define _DEBUG
+
+#ifdef _DEBUG
+#define DBG(str) do { std::cout << str << std::endl; } while( false )
+#else
+#define DBG(str) do { } while ( false )
+#endif
+
 // --------
 // includes
 // --------
@@ -71,10 +81,10 @@ class Allocator {
 		 * On a mismatch, it returns false.
          */
         bool valid () const {
-//            std::cout << std::endl << "starting..." << std::endl;
-//            std::cout << "N = " << N << std::endl;
-//            std::cout << "a[0] = " << (int)a[0] << std::endl;
-//            std::cout << "a[96] = " << (int)a[96] << std::endl; 
+           DBG(std::endl << "valid() -- starting...");
+           DBG("valid() -- N = " << N);
+           DBG("valid() -- a[0] = " << (int)a[0]);
+           DBG("valid() -- a[N-4] = " << (int)a[N-4]); 
 			
 //            char *p = const_cast<char*>(reinterpret_cast<const char*>(&a));
             size_type left, right;
@@ -82,23 +92,23 @@ class Allocator {
 			
             while(i < N-(int)sizeof(size_type)) {
                 left = (int)*const_cast<int*>(reinterpret_cast<const int*>(a+i)); //get the sentinel value
-                std::cout << "valid()  left: " << left << std::endl;
+                DBG("valid() --  left: " << left);
                 if(left < 0)	//if the block is busy
                     right = (int)*const_cast<int*>(reinterpret_cast<const int*>(a + i + (-1*left) + sizeof(size_type)));
                 else			//if the block is free
                     right = (int)*const_cast<int*>(reinterpret_cast<const int*>(a + i + left + sizeof(size_type)));
-                std::cout << "valid() right: " << right << std::endl;
-                //std::cout << "valid()     i: " << i << std::endl;
+                DBG("valid() -- right: " << right);
+                DBG("valid() --     i: " << i);
 
                 if(left != right)
                     return false;
                 
                 i += std::abs(left) + 2*sizeof(size_type);
-                //std::cout << "i at the end of while: " << i << std::endl;
+                DBG("valid() -- i at the end of while: " << i);
             }
 			
             if(i != N) {
-                //std::cout << "i: " << i << "; N: " << N << std::endl;
+                DBG("valid() -- i: " << i << "; N: " << N);
                 return false;
             }
             return true;}
@@ -149,7 +159,7 @@ class Allocator {
          */
 		 
         pointer allocate (size_type n) {
-			std::cout << "in allocate()... " << std::endl;
+			DBG("allocate() -- in allocate()... ");
 			//return 0 if the user requests... well, 0 bytes. undefined behavior.
 			if(n == 0)
 				return 0;
@@ -158,7 +168,7 @@ class Allocator {
 			char *p = const_cast<char*>(reinterpret_cast<const char*>(&a));
             size_type left;
 			size_type bytes_needed = n * sizeof(value_type);
-			//std::cout << "bytes_needed: " << bytes_needed << std::endl;
+			DBG("allocate() -- bytes_needed: " << bytes_needed);
 			
             int i = 0;
 			
@@ -169,10 +179,10 @@ class Allocator {
 				//if value is more than n but less than n+(size of 2 sentinels), give away the whole damn thing
 				//if value is more than n+(size of 2 sentinels), just give out how much was requested
 				//else, pass to the next block
-				std::cout << "allocate() left: " << left << std::endl;
+				DBG("allocate() left: " << left);
                 if(left >= bytes_needed) {	//if the block is free && big enough for allocation
-					//std::cout << "left+2*(int)sizeof(size_type) - (bytes_needed + 2*(int)sizeof(size_type) = " << left+2*(int)sizeof(size_type) << " - (" << bytes_needed << " + 2*" << (int)sizeof(size_type) << ")" << std::endl;
-					//std::cout << " = " << (left+2*(int)sizeof(size_type) - (bytes_needed + 2*(int)sizeof(size_type))) << std::endl;
+					DBG("allocate() -- left+2*(int)sizeof(size_type) - (bytes_needed + 2*(int)sizeof(size_type) = " << left+2*(int)sizeof(size_type) << " - (" << bytes_needed << " + 2*" << (int)sizeof(size_type) << ")");
+					DBG("allocate() --  = " << (left+2*(int)sizeof(size_type) - (bytes_needed + 2*(int)sizeof(size_type))));
 					if(left+2*(int)sizeof(size_type) - (bytes_needed + 2*(int)sizeof(size_type)) <=  2*(int)sizeof(size_type)) {	
 						//if the block is less than n+(size of 2 sentinels)
 						//give the whole damn thing away!						
@@ -184,8 +194,8 @@ class Allocator {
 						p1 = reinterpret_cast<int*>(&a[i] + left + sizeof(size_type));
 						*p1 *= -1;
 						
-						//std::cout << "allocated with extras" << std::endl;
-						return reinterpret_cast<pointer>(a+i);
+						DBG("allocate() -- allocated with extras");
+						return reinterpret_cast<pointer>(a+i+sizeof(size_type));
 					}
 					else {	
 						//if the block has enough space to allocate more after allocating this block
@@ -205,21 +215,24 @@ class Allocator {
 						p1 = reinterpret_cast<int*>(a + i + left + sizeof(size_type));
 						*p1 = (left - bytes_needed - 2*sizeof(size_type));
 						
-						//std::cout << "allocated just enough" << std::endl;
-						return reinterpret_cast<pointer>(a+i);						
+						DBG("allocate() -- allocated just enough");
+						DBG("allocate() -- a[0] = " << (int)*a);
+						DBG("allocate() -- a[8] = " << (int)*(a+8));
+						DBG("allocate() -- a[12] = " << (int)*(a+12));
+						return reinterpret_cast<pointer>(a+i+sizeof(size_type));						
 					}
 				}
                 //if the block is busy, just skip
 				//skip to the next left-sentinel (no need to check right-sentinels)
-				//std::cout << "allocate() i before end of while: " << i << std::endl;
+				DBG("allocate() -- i before end of while: " << i);
 				i += std::abs(left) + 2*sizeof(size_type);
-				//std::cout << "allocate() i at the end of while: " << i << std::endl;
+				DBG("allocate() -- i at the end of while: " << i);
 			}
 			
             assert(valid());
 			
 			//if there is no free block available, throw bad_alloc
-			//std::cout << "throwing party in allocate()" << std::endl;
+			DBG("allocate() -- throwing party in allocate()");
 			throw std::bad_alloc();
             
 			return reinterpret_cast<pointer>(a+i);}
@@ -234,6 +247,7 @@ class Allocator {
          * constructs an allocator at pointer p.
          */
         void construct (pointer p, const_reference v) {
+			DBG("construct() -- constructin a sentry");
             new (p) T(v);                            // uncomment!
             assert(valid());}
 
@@ -248,48 +262,51 @@ class Allocator {
          * after deallocation adjacent free blocks must be coalesced
          */
         void deallocate (pointer p, size_type = 0) {
-			std::cout << "in deallocate()..." << std::endl;
+			DBG("deallocate() -- in deallocate()...");
             //get the sentinel value (assert them being negative? is it user error?)
 			//turn them into positive values 
 			//check neighboring sentinels:
 			//	if positive, then merge
 			//	if negative, then ignore
-			char* lp = const_cast<char*>(reinterpret_cast<const char*>(p));
+			char* lp = const_cast<char*>(reinterpret_cast<const char*>(p)-4); //pointer to the sentinel
 			char* rp;
-			//std::cout << "left: " << (int)*d << std::endl;
-			int* d1 = reinterpret_cast<int*>(p);
-			//std::cout << "left before: " << *d1 << std::endl;
+			int* d1 = reinterpret_cast<int*>(lp); //pointer to the sentinel
+			DBG("deallocate() -- left before: " << *d1);
             *d1 *= -1;
-			//std::cout << "left after : " << *d1 << std::endl;
+			DBG("deallocate() -- left after : " << *d1);
 			d1 = reinterpret_cast<int*>(lp + *d1 + sizeof(size_type));
-			//std::cout << "right before: " << *d1 << std::endl;
+			DBG("deallocate() -- right before: " << *d1);
 			*d1 *= -1;
-			//std::cout << "right after : " << *d1 << std::endl;
-			rp = reinterpret_cast<char*>(d1);
+			DBG("deallocate() -- right after : " << *d1);
+			rp = reinterpret_cast<char*>(d1); //pointer to the right sentinel
+			
+			DBG("deallocate() -- *lp: " << (int)*lp);
+			DBG("deallocate() -- *rp: " << (int)*rp);
 			
 			int total_bytes = *d1;
 			bool merged = false;
+			
 			//check neighbors
 			//ignore the left if the block to be deallocated is the first block in the heap
-			std::cout << "total_bytes (before merges)= " << total_bytes << std::endl;
-			if(reinterpret_cast<char*>(p) != a) {	//compare pointers
-				std::cout << "sentinel to the left: " << (int)*(lp-sizeof(size_type)) << std::endl;
+			DBG("deallocate() -- total_bytes (before merges)= " << total_bytes);
+			if(reinterpret_cast<char*>(lp) != a) {	//compare pointers
+				DBG("deallocate() -- sentinel to the left: " << (int)*(lp-sizeof(size_type)));
 				if(*(lp - sizeof(size_type)) > 0) {	//if block left of this one is free
 					//add the total bytes (plus the 2 sentinels in between)
 					total_bytes += (int)*(reinterpret_cast<char*>(lp) - sizeof(size_type)) + 2*sizeof(size_type);
 					//change the pointer (bytes of the block to the left + 2 pointer sizes)
 					lp -= *(lp - sizeof(size_type)) + 2*sizeof(size_type);
 					
-					std::cout << "total_bytes (after left merge)= " << total_bytes << std::endl;
+					DBG("deallocate() -- total_bytes (after left merge)= " << total_bytes);
 					//checks if blocks on both sides are free. could've been taken out into its own
 					//if statement, but this requires less computation if both sides are actually free
 					if(reinterpret_cast<char*>(d1) != &a[N]-sizeof(size_type)) {	//compare pointers
-						std::cout << "sentinel to the right: " << (int)*(reinterpret_cast<char*>(d1) + sizeof(size_type)) << std::endl;
+						DBG("deallocate() -- sentinel to the right: " << (int)*(reinterpret_cast<char*>(d1) + sizeof(size_type)));
 						if(*(d1 + 1) > 0) {
 							//add the total bytes (plus the 2 sentinels in between)
-							std::cout << "*(d1+1) = " << (int) *(d1+1) << std::endl;
+							DBG("deallocate() -- *(d1+1) = " << (int) *(d1+1));
 							total_bytes += *(d1+1) + 2*sizeof(size_type);
-							std::cout << "total_bytes (after both merge)= " << total_bytes << std::endl;
+							DBG("deallocate() -- total_bytes (after both merge)= " << total_bytes);
 							//change the pointer (bytes of the block to the right + 2 pointer sizes)
 							rp = reinterpret_cast<char*>(d1);
 							rp += *(rp + sizeof(size_type)) + 2*sizeof(size_type);
@@ -305,18 +322,18 @@ class Allocator {
 			if(!merged) {
 				//ignore the right if the block to be deallocated is the last block in the heap
 				if(reinterpret_cast<char*>(d1) != &a[N]-sizeof(size_type)) {	//compare pointers
-					std::cout << "sentinel to the right (only): " << (int)*(reinterpret_cast<char*>(d1) + sizeof(size_type)) << std::endl;
+					DBG("deallocate() -- sentinel to the right (only): " << (int)*(reinterpret_cast<char*>(d1) + sizeof(size_type)));
 					if((int)*(rp + sizeof(size_type)) > 0) {
-						std::cout << "*(d1 + sizeof(size_type)) = " << (int)*(rp + sizeof(size_type)) << std::endl;
+						DBG("deallocate() -- *(d1 + sizeof(size_type)) = " << (int)*(rp + sizeof(size_type)));
 						//add the total bytes (plus the 2 sentinels in between)
-						std::cout << "total_bytes (before right-only merge)= " << total_bytes << std::endl;
+						DBG("deallocate() -- total_bytes (before right-only merge)= " << total_bytes);
 						total_bytes += (int)*reinterpret_cast<int*>(reinterpret_cast<char*>(d1) + sizeof(size_type)) + 2*sizeof(size_type);
-						std::cout << "total_bytes (after right-only merge)= " << total_bytes << std::endl;
-						//std::cout << "total_bytes: " << total_bytes << std::endl;
+						DBG("deallocate() -- total_bytes (after right-only merge)= " << total_bytes);
+						DBG("deallocate() -- total_bytes: " << total_bytes);
 						//change the pointer (bytes of the block to the right + 2 pointer sizes)
 						rp = reinterpret_cast<char*>(d1);
 						rp += (int)*(rp + sizeof(size_type)) + 2*sizeof(size_type);
-						//std::cout << "*rp: " << (int)*rp << std::endl;
+						DBG("deallocate() -- *rp: " << (int)*rp);
 					}
 				}
 				//else
@@ -324,20 +341,20 @@ class Allocator {
 			}
 			
 			//change the values on both sentinels
-			std::cout << "total_bytes (before setting)= " << total_bytes << std::endl;
+			DBG("deallocate() -- total_bytes (before setting)= " << total_bytes);
 			int* lpi = reinterpret_cast<int*>(lp);
 			int* rpi = reinterpret_cast<int*>(rp);
-			//std::cout << "before setting lp: " << (int)*lpi << std::endl;
+			DBG("deallocate() -- before setting lp: " << (int)*lpi);
 			*lpi = total_bytes;
-			std::cout << "after setting lp: " << (int)*lpi << std::endl;
+			DBG("deallocate() -- after setting lp: " << (int)*lpi);
 			*rpi = total_bytes;
-			std::cout << "after setting rp: " << (int)*rpi << std::endl;
+			DBG("deallocate() -- after setting rp: " << (int)*rpi);
 			
-			std::cout << "a[0]: " << (int)a[0] << std::endl;
-			std::cout << "a[N-4]: " << (int)a[N-4] << std::endl;
+			DBG("deallocate() -- a[0]: " << (int)a[0]);
+			DBG("deallocate() -- a[N-4]: " << (int)a[N-4]);
 			
             assert(valid());
-			//std::cout << "passed valid()" << std::endl;
+			DBG("deallocate() -- passed valid()");
 			}
 
         // -------

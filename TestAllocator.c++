@@ -16,6 +16,14 @@ To test the program:
     % valgrind TestAllocator >& TestAllocator.out
 */
 
+//#define _DEBUG
+
+#ifdef _DEBUG
+#define DBG(str) do { std::cout << str << std::endl; } while( false )
+#else
+#define DBG(str) do { } while ( false )
+#endif
+
 // --------
 // includes
 // --------
@@ -116,7 +124,7 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		try {
 			Allocator<int, 4> x;} 
 		catch(std::bad_alloc& e){
-//			std::cout << "bad_alloc" << std::endl;
+			DBG("test_valid_2() -- bad_alloc");
 		}
     }    
 	
@@ -124,7 +132,7 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		try {
 			Allocator<int, 0> x;} 
 		catch(std::bad_alloc& e){
-//			std::cout << "bad_alloc" << std::endl;
+			DBG("test_valid_3() -- bad_alloc");
 		}
     }
 	
@@ -182,14 +190,14 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		try {
 			x.allocate(2);
 		} catch (std::bad_alloc e) {}
-		//std::cout << "finished test_allocate_1" << std::endl;
+		DBG("-------------------------finished test_allocate_1");
 	}
 	
 	void test_allocate_2 () {
 		B x;
 		x.allocate(20);
 		x.allocate(1);
-		//std::cout << "finished test_allocate_2" << std::endl;
+		DBG("-------------------------finished test_allocate_2");
 	}
 	
 	void test_allocate_3 () {
@@ -198,7 +206,7 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		try {
 			x.allocate(5);
 		} catch (std::bad_alloc e) {}
-		//std::cout << "finished test_allocate_3" << std::endl;
+		DBG("-------------------------finished test_allocate_3");
 	}
 	
 	// ---------------
@@ -206,29 +214,29 @@ struct TestAllocator2 : CppUnit::TestFixture {
 	// ---------------
 	
 	void test_deallocate_1 () {
-		std::cout << "in test_deallocate_1" << std::endl;
+		DBG("-------------------------in test_deallocate_1-------------------------");
 		B x;
 		pointer p = x.allocate(20);
 		x.deallocate(p);
-		//std::cout << "finished test_deallocate_1" << std::endl;
+		DBG("-------------------------finished test_deallocate_1-------------------------");
 	}	
 	
 	void test_deallocate_2 () {
-		std::cout << "in test_deallocate_2" << std::endl;
+		DBG("-------------------------in test_deallocate_2-------------------------");
 		B x;
 		pointer p1 = x.allocate(3);
-		//std::cout << "allocated p1 (3)" << std::endl;
+		DBG("test_deallocate_2() -- allocated p1 (3)");
 		pointer p2 = x.allocate(3);
-		//std::cout << "allocated p2 (3)" << std::endl;
+		DBG("test_deallocate_2() -- allocated p2 (3)");
 		x.deallocate(p1);
-		std::cout << "deallocated p1" << std::endl;
+		DBG("test_deallocate_2() -- deallocated p1");
 		x.deallocate(p2);
-		std::cout << "deallocated p2" << std::endl;
-		//std::cout << "finished test_deallocate_2" << std::endl;
+		DBG("test_deallocate_2() -- deallocated p2");
+		DBG("-------------------------finished test_deallocate_2-------------------------");
 	}	
 	
 	void test_deallocate_3 () {
-		std::cout << "in test_deallocate_3-------------------------------------------------------" << std::endl;
+		DBG("-------------------------in test_deallocate_3-------------------------");
 		B x;
 		pointer p1 = x.allocate(10);
 		x.deallocate(p1);
@@ -244,7 +252,7 @@ struct TestAllocator2 : CppUnit::TestFixture {
 		x.deallocate(p1);
 		x.deallocate(p2);
 		x.deallocate(p3);
-		//std::cout << "finished test_deallocate_1" << std::endl;
+		DBG("-------------------------finished test_deallocate_1-------------------------");
 	}	
 	
     // -----
@@ -286,13 +294,14 @@ int main () {
 
     CppUnit::TextTestRunner tr;
 
-//    tr.addTest(TestAllocator< std::allocator<int> >::suite());
-//    tr.addTest(TestAllocator< Allocator<int, 100> >::suite()); // uncomment!
+    tr.addTest(TestAllocator< std::allocator<int> >::suite());
+    tr.addTest(TestAllocator< Allocator<int, 100> >::suite()); // uncomment!
     
-//    tr.addTest(TestAllocator< std::allocator<double> >::suite());
-//    tr.addTest(TestAllocator< Allocator<double, 100> >::suite()); // uncomment!
+    tr.addTest(TestAllocator< std::allocator<double> >::suite());
+    tr.addTest(TestAllocator< Allocator<double, 100> >::suite()); // uncomment!
 
 	tr.addTest(TestAllocator2<Allocator<int, 100>>::suite());
+	tr.addTest(TestAllocator2<Allocator<char, 100>>::suite());
 	
     tr.run();
 
