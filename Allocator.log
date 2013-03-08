@@ -1,0 +1,41 @@
+commit ee7dc21f179784edfa08415a8c8e17d3b067d807
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Thu Mar 7 17:30:58 2013 -0600
+
+    Now passes all tests. Added debug message functionality.
+
+commit 2288433461c4bf19521ca1896de0cc1bbaef2fb6
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Wed Mar 6 09:00:07 2013 -0600
+
+    Passes custom unit tests, but not the stock one.
+
+commit 2d09260f4dcdae700b2e98419c8a153a586eb9a8
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Wed Mar 6 04:15:15 2013 -0600
+
+    Added allocate(). Modified valid() to work with allocate().
+
+commit bfa7f944cf1e40a6c688d3785f3a01fd13fae02b
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Tue Mar 5 21:19:13 2013 -0600
+
+    Code changed to use sizeof(int) instead of the value 4.
+
+commit b39f6515af2081d554e442a5009761f5bda50cff
+Author: Kisun (Laptop-Win7) <aidensong@utexas.edu>
+Date:   Tue Mar 5 20:41:20 2013 -0600
+
+    Working constructor and valid() function. Unit tests for these are added.
+
+commit 3bd01c19ebb3d993d6e7e7824e198504d3f6266d
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Mon Mar 4 17:17:23 2013 -0600
+
+    skeleton files added
+
+commit 8e184ceeaaf89b9766cdb4adf26902abcce588b7
+Author: hellokisun <aidensong@utexas.edu>
+Date:   Mon Mar 4 14:55:39 2013 -0800
+
+    Initial commit

@@ -11,7 +11,7 @@ TestAllocator: TestAllocator.c++ Allocator.h
 	g++ -pedantic -std=c++0x -Wall TestAllocator.c++ -o TestAllocator -lcppunit -ldl
 
 test: TestAllocator
-	./TestAllocator
+	TestAllocator
 
 testv: TestAllocator
 	valgrind TestAllocator

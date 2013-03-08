@@ -107,10 +107,12 @@ class Allocator {
                 DBG("valid() -- i at the end of while: " << i);
             }
 			
-            if(i != N) {
-                DBG("valid() -- i: " << i << "; N: " << N);
-                return false;
-            }
+			
+			assert(i == N);
+            // if(i != N) {
+                // DBG("valid() -- i: " << i << "; N: " << N);
+                // return false;
+            // }
             return true;}
 
     public:
@@ -152,7 +154,12 @@ class Allocator {
         /**
          * O(1) in space
          * O(n) in time
-         * <your documentation>
+         * allocates the requested amount of space to give out to the user.
+	 * returns the pointer to the first element of the block given out.
+	 * gives out extra space if the space that is to be left over can't 
+	 * be used once this block is allocated. otherwise, gives out exactly
+	 * how much was asked for. 
+	 * throws bad_alloc if there is no space to be given out. 
          * after allocation there must be enough space left for a valid block
          * the smallest allowable block is sizeof(T) + (2 * sizeof(int))
          * choose the first block that fits
@@ -235,7 +242,7 @@ class Allocator {
 			DBG("allocate() -- throwing party in allocate()");
 			throw std::bad_alloc();
             
-			return reinterpret_cast<pointer>(a+i);}
+			return reinterpret_cast<pointer>(a+i+sizeof(size_type));}
 
         // ---------
         // construct
@@ -258,7 +265,11 @@ class Allocator {
         /**
          * O(1) in space
          * O(1) in time
-         * <your documentation>
+         * deallocates the block pointed by the argument p. 
+	 * frees up the block to be used by other requests; if there
+	 * are any free blocks adjacent to the block that was just 
+	 * freed, then those blocks are merged with the block that is
+	 * currently being deallocated. 
          * after deallocation adjacent free blocks must be coalesced
          */
         void deallocate (pointer p, size_type = 0) {
@@ -282,6 +293,7 @@ class Allocator {
 			
 			DBG("deallocate() -- *lp: " << (int)*lp);
 			DBG("deallocate() -- *rp: " << (int)*rp);
+			assert(*lp == *rp);
 			
 			int total_bytes = *d1;
 			bool merged = false;
@@ -344,11 +356,13 @@ class Allocator {
 			DBG("deallocate() -- total_bytes (before setting)= " << total_bytes);
 			int* lpi = reinterpret_cast<int*>(lp);
 			int* rpi = reinterpret_cast<int*>(rp);
+			
 			DBG("deallocate() -- before setting lp: " << (int)*lpi);
 			*lpi = total_bytes;
 			DBG("deallocate() -- after setting lp: " << (int)*lpi);
 			*rpi = total_bytes;
 			DBG("deallocate() -- after setting rp: " << (int)*rpi);
+			assert(*lpi == *rpi);
 			
 			DBG("deallocate() -- a[0]: " << (int)a[0]);
 			DBG("deallocate() -- a[N-4]: " << (int)a[N-4]);
